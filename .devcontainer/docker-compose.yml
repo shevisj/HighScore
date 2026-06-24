@@ -1,0 +1,36 @@
+# Dev container topology: a Node workspace plus a MongoDB instance, mirroring
+# the production docker-compose.yml but tuned for interactive development.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Mount the repository into the standard Codespaces/dev-container location.
+    volumes:
+      - ..:/workspaces/HighScore:cached
+
+    # Keep the container running so VS Code can attach; the app is started
+    # manually with `npm run start`.
+    command: sleep infinity
+
+    # Default the database connection to the bundled mongo service. This is
+    # picked up by the app unless overridden in a local .env file.
+    environment:
+      HIGHSCORE_DB_URL: mongodb://mongo:27017/highscore
+
+    depends_on:
+      - mongo
+
+    # Reuse the mongo service's network so `localhost:27017` also works, which
+    # matches the default in .env.example.
+    network_mode: service:mongo
+
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

@@ -125,13 +125,13 @@ export class Server {
       },
       store: MongoStore.create({
         mongoUrl: connection.url,
-        mongoOptions: connection.connectionOptions,
+        mongoOptions: connection.connectionOptions as any,
       }),
     } as session.SessionOptions;
 
     if (isProduction) {
       this.app.getApp().set('trust proxy', 1);
-      sess.cookie!.secure = true;
+      (sess.cookie as any).secure = true;
     }
 
     if (isAuthDocs()) {

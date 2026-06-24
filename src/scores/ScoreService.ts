@@ -81,7 +81,7 @@ export class ScoreService {
     return this.getScore(_id);
   }
 
-  public async deleteScore(_id: string) {
+  public async deleteScore(_id: string): Promise<{ acknowledged: boolean; deletedCount: number }> {
     return this.Score.deleteOne({ _id });
   }
 

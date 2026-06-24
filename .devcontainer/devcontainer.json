@@ -1,0 +1,45 @@
+{
+  "name": "HighScore",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/HighScore",
+
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // Ports the app and its tooling listen on during development.
+  "forwardPorts": [8081, 5173, 27017, 9229],
+  "portsAttributes": {
+    "8081": { "label": "HighScore API", "onAutoForward": "notify" },
+    "5173": { "label": "Docs (VitePress)", "onAutoForward": "silent" },
+    "27017": { "label": "MongoDB", "onAutoForward": "silent" },
+    "9229": { "label": "Node debugger", "onAutoForward": "silent" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "mongodb.mongodb-vscode",
+        "ms-azuretools.vscode-docker",
+        "vue.volar",
+        "editorconfig.editorconfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "eslint.validate": ["javascript", "typescript"],
+        "typescript.tsdk": "node_modules/typescript/lib"
+      }
+    }
+  },
+
+  // Install dependencies and seed a local .env once the container is created.
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "remoteUser": "node"
+}

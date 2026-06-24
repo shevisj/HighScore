@@ -56,3 +56,7 @@ test/**/*.js.map
 .env.development
 
 custom
+
+# vitepress
+docs/.vitepress/dist
+docs/.vitepress/cache

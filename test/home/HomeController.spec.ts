@@ -7,7 +7,7 @@ import { Score } from '../../src/scores/Score';
 import { Server } from '../../src/Server';
 
 describe('HomeController', () => {
-  let request: SuperTest.SuperTest<SuperTest.Test>;
+  let request: ReturnType<typeof SuperTest>;
   let ScoreModel: MongooseModel<Score>;
 
   beforeAll(TestMongooseContext.bootstrap(Server, {
@@ -124,7 +124,7 @@ describe('HomeController', () => {
     });
 
     it('should return a score view', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const { status, text } = await request.get(`/score/${score._id.toString()}`);
 
       expect(status).toEqual(200);

@@ -8,7 +8,7 @@ import { Server } from '../../src/Server';
 
 describe('ScoreController', () => {
   // bootstrap your Server to load all endpoints before run your test
-  let request: SuperTest.SuperTest<SuperTest.Test>;
+  let request: ReturnType<typeof SuperTest>;
   let ScoreModel: MongooseModel<Score>;
 
   beforeAll(TestMongooseContext.bootstrap(Server));
@@ -184,7 +184,7 @@ describe('ScoreController', () => {
     });
 
     it('should return the score', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const { status, body } = await request.get(`/api/scores/${testScore._id.toString()}`);
 
       expect(status).toEqual(200);
@@ -282,7 +282,7 @@ describe('ScoreController', () => {
     });
 
     it('should update a score', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const { status, body } = await request.put(`/api/scores/${testScore._id.toString()}`).send({
         name: 'Updated Player 1',
         value: 200,
@@ -318,7 +318,7 @@ describe('ScoreController', () => {
     });
 
     it('should delete the score', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const { status, body } = await request.delete(`/api/scores/${testScore._id.toString()}`);
 
       expect(status).toEqual(200);

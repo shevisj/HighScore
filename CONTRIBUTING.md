@@ -6,8 +6,12 @@ We're really glad you're reading this. 👏
 
 Before install the project you need to have a server with :
 
-- [NodeJS](https://nodejs.org/en/) >= 16.x.x
+- [NodeJS](https://nodejs.org/en/) >= 20.x.x
 - [MongoDB](https://www.mongodb.com/) >= 5.x.x
+
+> The quickest way to get a ready-to-use environment is to open the project in a
+> [dev container](./.devcontainer) (VS Code "Reopen in Container" or GitHub
+> Codespaces), which provisions Node 20 and MongoDB 7 automatically.
 
 ### Install
 These steps will guide you through contributing to this project:

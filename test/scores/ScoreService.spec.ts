@@ -106,7 +106,7 @@ describe('ScoreService', () => {
     });
 
     it('should get a single score with his rank', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const scores = await service.getScores({ _id: score._id });
 
       expect(scores.length).toEqual(1);
@@ -155,7 +155,7 @@ describe('ScoreService', () => {
     });
 
     it('should return the score with his rank', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const score = await service.getScore(testScore._id);
 
       expect(score).toMatchObject({
@@ -283,7 +283,7 @@ describe('ScoreService', () => {
     });
 
     it('should update a score', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const newScore = await service.updateScore(testScore._id.toString(), {
         name: 'Updated Player 1',
       });
@@ -316,7 +316,7 @@ describe('ScoreService', () => {
     });
 
     it('should delete a score', async () => {
-      // eslint-disable-next-line no-underscore-dangle
+       
       const info = await service.deleteScore(testScore._id.toString());
 
       expect(info.deletedCount).toEqual(1);

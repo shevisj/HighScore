@@ -1,4 +1,4 @@
-// eslint-disable-next-line max-classes-per-file
+ 
 import { Property, Integer } from '@tsed/schema';
 
 export class ScoreHttpQuery {
