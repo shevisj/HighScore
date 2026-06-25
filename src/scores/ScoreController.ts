@@ -9,10 +9,10 @@ import {
 import { ScoreService } from './ScoreService';
 import { Score } from './Score';
 import { ScoreMiddleware } from './ScoreMiddleware';
+import { WriteAuthMiddleware } from './WriteAuthMiddleware';
 import { ScoreHttpQuery } from './ScoreQuery';
 
 @Controller('/scores')
-@UseBefore(ScoreMiddleware)
 export class ScoreController {
   @Inject(ScoreService)
   private scoreService: ScoreService;
@@ -51,6 +51,8 @@ export class ScoreController {
   }
 
   @Post('/')
+  @UseBefore(WriteAuthMiddleware)
+  @UseBefore(ScoreMiddleware)
   @(Returns(201, Score).Groups('read'))
   public post(
   @BodyParams() @Groups('create') score: Score,
@@ -63,6 +65,8 @@ export class ScoreController {
   }
 
   @Put('/:id')
+  @UseBefore(WriteAuthMiddleware)
+  @UseBefore(ScoreMiddleware)
   @(Returns(200, Score).Groups('read'))
   @(Returns(404, NotFound).Description('Score not found'))
   public async put(@PathParams('id') id: string, @BodyParams() @Groups('update') score: Score) {
@@ -76,6 +80,7 @@ export class ScoreController {
   }
 
   @Delete('/:id')
+  @UseBefore(WriteAuthMiddleware)
   @(Returns(404, NotFound).Description('Score not found'))
   public async delete(@PathParams('id') id: string) {
     const oldScore = await this.scoreService.getScore(id);

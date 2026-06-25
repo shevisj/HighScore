@@ -64,6 +64,23 @@ These options allow you to configure the `/metrics` endpoint.
 | `HIGHSCORE_PASSWORD_METRICS` | Password for basic auth of `/metrics`. | string  | |
 | `HIGHSCORE_DISABLE_METRICS` | Disable the `/metrics` endpoint | boolean | false |
 
+## Write protection
+
+These options gate the write routes (`POST`, `PUT`, `DELETE` on `/api/scores`) behind a shared secret, to keep out anonymous writes. Reads are never affected. When `HIGHSCORE_WRITE_PASSWORD` is empty, writes stay open.
+
+| Variable        | Description       | Type           | Default         |
+| --------------- | ----------------- | -------------- | --------------- |
+| `HIGHSCORE_WRITE_PASSWORD` | Secret required to write. When set, callers must authenticate. Leave empty to keep writes open. | string  |  |
+| `HIGHSCORE_WRITE_TOKEN` | When `true`, write routes expect a per-request HMAC token instead of the raw password (see below). | boolean  | false |
+
+:::tip
+Go to the [scores](/guide/scores#authenticating-writes) section to learn how to send the password or token with a request.
+:::
+
+:::warning
+The secret is typically distributed with your game client, so a determined user can extract it. This raises the bar against casual writes and (in token mode) prevents replaying a captured token to write different data — but it is **obfuscation, not real anti-cheat**. For that you need server-side score validation or authenticated accounts. Always serve over HTTPS.
+:::
+
 ## Bad words
 
 This option allow you to configure the bad words filter.

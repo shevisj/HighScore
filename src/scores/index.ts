@@ -7,3 +7,4 @@ export * from './ScoreController';
 export * from './ScoreMiddleware';
 export * from './ScoreQuery';
 export * from './ScoreService';
+export * from './WriteAuthMiddleware';

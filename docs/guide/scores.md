@@ -51,6 +51,66 @@ Here is an explanation for each field :
 | `updateAt` | 	Date when the score was last updated | 
 
 
+## Authenticating writes
+
+If your instance sets `HIGHSCORE_WRITE_PASSWORD`, every write request (`POST`, `PUT`, `DELETE`) must be authenticated. Reads stay open. There are two modes, configured server-side — see [configuration](/guide/configuration#write-protection).
+
+### Password mode (default)
+
+Send the shared secret in the `x-highscore-password` header:
+
+```sh
+curl -X 'POST' \
+  'http://localhost:8081/api/scores' \
+  -H 'Content-Type: application/json' \
+  -H 'x-highscore-password: your-secret' \
+  -d '{ "name": "Player name", "value": 1000 }'
+```
+
+A missing or wrong secret returns `401 Unauthorized`.
+
+### Token mode
+
+When the server sets `HIGHSCORE_WRITE_TOKEN=true`, send a per-request **HMAC-SHA256 token** in the `x-highscore-token` header instead of the raw secret. The token is keyed by the secret and computed over the request payload, so a captured token only authorizes that exact request — it cannot be replayed to write a different score.
+
+The signed message is the following fields, coerced to strings and joined with newlines (`\n`), using an empty string for any absent field:
+
+```
+name + "\n" + value + "\n" + category + "\n" + id
+```
+
+- **POST**: `name`, `value`, `category` (no `id`)
+- **PUT**: `name`, `value`, `category`, `id`
+- **DELETE**: `id` only (no body)
+
+Reference implementation (Node.js) you would embed in your game client:
+
+```js
+const crypto = require('crypto');
+
+function writeToken({ name = '', value = '', category = '', id = '' }, secret) {
+  const message = [name, value, category, id]
+    .map((v) => (v === undefined || v === null ? '' : String(v)))
+    .join('\n');
+
+  return crypto.createHmac('sha256', secret).update(message).digest('hex');
+}
+
+const token = writeToken({ name: 'Player name', value: 1000 }, 'your-secret');
+```
+
+```sh
+curl -X 'POST' \
+  'http://localhost:8081/api/scores' \
+  -H 'Content-Type: application/json' \
+  -H 'x-highscore-token: <token>' \
+  -d '{ "name": "Player name", "value": 1000 }'
+```
+
+:::warning
+Token mode binds a token to its payload, but resubmitting the **exact same** payload still validates (no replay window). And because the secret ships with your client, it can be extracted. Treat this as obfuscation that raises the bar, not as anti-cheat. Always serve over HTTPS.
+:::
+
 ## Retrieve a single score
 
 To retrieve a specific score, you will need to know its ID. Here is an example of how to do this :
