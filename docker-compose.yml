@@ -31,6 +31,10 @@ services:
       #   HIGHSCORE_WRITE_PASSWORD=$(openssl rand -hex 16) docker compose up
       - HIGHSCORE_WRITE_PASSWORD=${HIGHSCORE_WRITE_PASSWORD:-}
       - HIGHSCORE_WRITE_TOKEN=${HIGHSCORE_WRITE_TOKEN:-false}
+      # When true, posting a score whose name + value + category already exist
+      # returns the existing one instead of inserting a duplicate (idempotent
+      # POST). A unique index is created on startup to enforce this.
+      - HIGHSCORE_DEDUPE_SCORES=${HIGHSCORE_DEDUPE_SCORES:-false}
 
   mongo:
     image: mongo:7.0
