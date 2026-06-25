@@ -43,6 +43,13 @@ services:
       - HIGHSCORE_LOGO_URL=
       - HIGHSCORE_FAVICON_URL=
       - HIGHSCORE_CSS_URL=
+      # Optional write protection for POST/PUT/DELETE /api/scores. Recommended
+      # on a public endpoint: set a secret to keep out anonymous writes. Set
+      # HIGHSCORE_WRITE_TOKEN=true to require a payload-bound HMAC token instead
+      # of the raw password. Supply the secret from the host environment, e.g.:
+      #   export HIGHSCORE_WRITE_PASSWORD=$(openssl rand -hex 16)
+      - HIGHSCORE_WRITE_PASSWORD=${HIGHSCORE_WRITE_PASSWORD:-}
+      - HIGHSCORE_WRITE_TOKEN=${HIGHSCORE_WRITE_TOKEN:-false}
 
   caddy:
     image: caddy:2-alpine

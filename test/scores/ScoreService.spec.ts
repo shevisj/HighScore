@@ -251,6 +251,52 @@ describe('ScoreService', () => {
     });
   });
 
+  describe('#addScore() with HIGHSCORE_DEDUPE_SCORES', () => {
+    beforeAll(() => {
+      process.env.HIGHSCORE_DEDUPE_SCORES = 'true';
+    });
+
+    afterAll(() => {
+      delete process.env.HIGHSCORE_DEDUPE_SCORES;
+    });
+
+    afterEach(TestMongooseContext.clearDatabase);
+
+    it('should not create a duplicate for the same name/value/category', async () => {
+      const first = await service.addScore({ name: 'Dup', value: 100, category: 'a' });
+      const second = await service.addScore({ name: 'Dup', value: 100, category: 'a' });
+
+      expect(second._id.toString()).toEqual(first._id.toString());
+      expect(await ScoreModel.countDocuments({ name: 'Dup' })).toEqual(1);
+    });
+
+    it('should dedupe regardless of session (retry on a fresh session)', async () => {
+      const first = await service.addScore({ name: 'Dup', value: 100, session: 'session-a' });
+      const second = await service.addScore({ name: 'Dup', value: 100, session: 'session-b' });
+
+      expect(second._id.toString()).toEqual(first._id.toString());
+      expect(await ScoreModel.countDocuments({ name: 'Dup' })).toEqual(1);
+
+      // the original owner is preserved ($setOnInsert does not overwrite)
+      const stored = await ScoreModel.findById(first._id);
+      expect(stored?.session).toEqual('session-a');
+    });
+
+    it('should keep distinct scores for a different value', async () => {
+      await service.addScore({ name: 'Dup', value: 100 });
+      await service.addScore({ name: 'Dup', value: 200 });
+
+      expect(await ScoreModel.countDocuments({ name: 'Dup' })).toEqual(2);
+    });
+
+    it('should keep distinct scores for a different category', async () => {
+      await service.addScore({ name: 'Dup', value: 100 });
+      await service.addScore({ name: 'Dup', value: 100, category: 'hard' });
+
+      expect(await ScoreModel.countDocuments({ name: 'Dup' })).toEqual(2);
+    });
+  });
+
   describe('#updateScore()', () => {
     let testScore: Score;
 

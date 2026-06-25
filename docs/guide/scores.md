@@ -99,6 +99,12 @@ function writeToken({ name = '', value = '', category = '', id = '' }, secret) {
 const token = writeToken({ name: 'Player name', value: 1000 }, 'your-secret');
 ```
 
+A ready-to-run Python equivalent ships in [`scripts/generate_write_token.py`](https://github.com/EmilienLeroy/HighScore/blob/main/scripts/generate_write_token.py):
+
+```sh
+python3 scripts/generate_write_token.py -p your-secret -n 'Player name' -s 1000
+```
+
 ```sh
 curl -X 'POST' \
   'http://localhost:8081/api/scores' \

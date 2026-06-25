@@ -81,6 +81,27 @@ Go to the [scores](/guide/scores#authenticating-writes) section to learn how to 
 The secret is typically distributed with your game client, so a determined user can extract it. This raises the bar against casual writes and (in token mode) prevents replaying a captured token to write different data — but it is **obfuscation, not real anti-cheat**. For that you need server-side score validation or authenticated accounts. Always serve over HTTPS.
 :::
 
+## Idempotent posts
+
+By default, every `POST /api/scores` inserts a new row. Enable this option to make posting **idempotent**: if a score with the same `name`, `value` and `category` already exists, the existing score is returned instead of creating a duplicate. This is useful for client retries (e.g. after a flaky network response). The submitter's `session` is **not** part of the match, so a retry that lands on a fresh session still de-duplicates.
+
+| Variable        | Description       | Type           | Default         |
+| --------------- | ----------------- | -------------- | --------------- |
+| `HIGHSCORE_DEDUPE_SCORES` | Upsert instead of insert when `name` + `value` + `category` already exist | boolean  | false |
+
+When this option is enabled, the app also creates a **unique index** on `{ name, value, category }` at startup, which enforces de-duplication at the database level and closes the concurrent-race window (two simultaneous identical posts can no longer both insert). The app handles the resulting duplicate-key conflict gracefully by returning the existing score.
+
+:::warning
+The index can only be built if the `scores` collection contains **no existing duplicates**. If it does, startup logs an error and the index is skipped (the app keeps running with application-level de-duplication only). Remove the duplicates and restart. You can also build it manually:
+
+```js
+db.scores.createIndex(
+  { name: 1, value: 1, category: 1 },
+  { unique: true, name: 'name_value_category_unique' }
+)
+```
+:::
+
 ## Bad words
 
 This option allow you to configure the bad words filter.
