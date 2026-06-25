@@ -5,12 +5,19 @@
   "workspaceFolder": "/workspaces/HighScore",
 
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    // Provides an isolated Docker daemon inside the dev container so
+    // `docker` / `docker compose` work (e.g. the docker-compose.https.yml
+    // stack). Requires the app service to run privileged (see
+    // docker-compose.yml).
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
 
   // Ports the app and its tooling listen on during development.
-  "forwardPorts": [8081, 5173, 27017, 9229],
+  "forwardPorts": [80, 443, 8081, 5173, 27017, 9229],
   "portsAttributes": {
+    "80": { "label": "HTTP (Caddy)", "onAutoForward": "silent" },
+    "443": { "label": "HTTPS (Caddy)", "onAutoForward": "notify" },
     "8081": { "label": "HighScore API", "onAutoForward": "notify" },
     "5173": { "label": "Docs (VitePress)", "onAutoForward": "silent" },
     "27017": { "label": "MongoDB", "onAutoForward": "silent" },

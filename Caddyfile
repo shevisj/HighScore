@@ -1,0 +1,14 @@
+# Caddy reverse proxy for HighScore.
+#
+# {$SITE_ADDRESS} is read from the environment (see docker-compose.https.yml).
+#   - A real domain (e.g. highscore.example.com) -> Caddy auto-provisions a
+#     Let's Encrypt certificate. DNS must point at this host and ports 80/443
+#     must be reachable from the internet.
+#   - "localhost" (the default) -> Caddy serves HTTPS with its own internal CA,
+#     handy for local testing (your browser will warn unless you trust the CA).
+{$SITE_ADDRESS:localhost} {
+	# Forward everything to the app's plain-HTTP listener inside the network.
+	# Caddy automatically sets X-Forwarded-Proto/For/Host, which the app needs
+	# (trust proxy + secure session cookie) when NODE_ENV=production.
+	reverse_proxy highscore:8081
+}

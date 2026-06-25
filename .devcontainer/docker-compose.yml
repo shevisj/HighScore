@@ -14,6 +14,12 @@ services:
     # manually with `npm run start`.
     command: sleep infinity
 
+    # Required by the docker-in-docker dev container feature, which runs its
+    # own Docker daemon inside this service. `init` reaps zombie processes
+    # left by nested containers.
+    privileged: true
+    init: true
+
     # Default the database connection to the bundled mongo service. This is
     # picked up by the app unless overridden in a local .env file.
     environment:

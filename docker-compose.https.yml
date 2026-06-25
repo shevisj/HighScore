@@ -1,0 +1,72 @@
+# HTTPS deployment for HighScore: Caddy terminates TLS and reverse-proxies to
+# the app, which keeps serving plain HTTP on 8081 inside the Docker network.
+#
+# Usage:
+#   export SITE_ADDRESS=highscore.example.com        # your domain (or "localhost")
+#   export HIGHSCORE_SESSION_SECRET=$(openssl rand -hex 32)
+#   docker compose -f docker-compose.https.yml up --build
+#
+# For a real domain, point its DNS A/AAAA record at this host and make sure
+# ports 80 and 443 are open; Caddy obtains and renews the certificate for you.
+
+services:
+  highscore:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: highscore:latest
+    # Not published to the host: only Caddy is reachable from outside. The app
+    # is reachable as highscore:8081 on the internal Docker network.
+    expose:
+      - '8081'
+    depends_on:
+      - "mongo"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./custom:/opt/custom
+      - ./config/ban.json:/opt/config/ban.json
+    environment:
+      # Enables `trust proxy` + the secure session cookie in Server.ts. Without
+      # this, sessions silently break behind TLS.
+      - NODE_ENV=production
+      # Set a real secret (e.g. `openssl rand -hex 32`); falls back to a known
+      # default otherwise, which is unsafe on a public HTTPS endpoint.
+      - HIGHSCORE_SESSION_SECRET=${HIGHSCORE_SESSION_SECRET:-change-me}
+      - HIGHSCORE_DB_URL=mongodb://mongo:27017/highscore
+      - HIGHSCORE_TITLE=
+      - HIGHSCORE_DESCRIPTION=
+      - HIGHSCORE_LOGO_URL=
+      - HIGHSCORE_FAVICON_URL=
+      - HIGHSCORE_CSS_URL=
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      # The site address Caddy serves. Override via the SITE_ADDRESS env var;
+      # defaults to localhost (Caddy internal CA) for local testing.
+      - SITE_ADDRESS=${SITE_ADDRESS:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data      # persists issued certificates across restarts
+      - caddy_config:/config
+    depends_on:
+      - "highscore"
+
+  mongo:
+    image: mongo:7.0
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:
+  caddy_data:
+  caddy_config:
